@@ -1,0 +1,90 @@
+############################
+alpha = 1
+beta = 1
+x = 1
+dparetoR gives the value that is expected: TRUE
+paretodens gives the value that is expected: TRUE
+############################
+alpha = 1
+beta = 2
+x = 2
+dparetoR gives the value that is expected: TRUE
+paretodens gives the value that is expected: TRUE
+############################
+alpha = 1
+beta = 3
+x = 2
+dparetoR gives the value that is expected: TRUE
+paretodens gives the value that is expected: TRUE
+############################
+alpha = 2
+beta = 1
+x = 2
+dparetoR gives the value that is expected: TRUE
+paretodens gives the value that is expected: TRUE
+############################
+alpha = 2
+beta = 2
+x = 2
+dparetoR gives the value that is expected: TRUE
+paretodens gives the value that is expected: TRUE
+############################
+alpha = 2
+beta = 3
+x = 3
+dparetoR gives the value that is expected: TRUE
+paretodens gives the value that is expected: TRUE
+############################
+alpha = 3
+beta = 1
+x = 3
+dparetoR gives the value that is expected: TRUE
+paretodens gives the value that is expected: TRUE
+############################
+alpha = 3
+beta = 2
+x = 3
+dparetoR gives the value that is expected: TRUE
+paretodens gives the value that is expected: TRUE
+############################
+alpha = 3
+beta = 3
+x = 4
+dparetoR gives the value that is expected: TRUE
+paretodens gives the value that is expected: TRUE
+############################
+alpha = 4
+beta = 1
+x = 4
+dparetoR gives the value that is expected: TRUE
+paretodens gives the value that is expected: TRUE
+############################
+alpha = 2
+beta = 3
+x = 1
+dparetoR gives the value that is expected: FALSE
+paretodens gives the value that is expected: FALSE
+############################
+alpha = 0.5
+beta = 0.5
+x = 0.5
+dparetoR gives the value that is expected: TRUE
+paretodens gives the value that is expected: TRUE
+############################
+alpha = -1
+beta = 1
+x = 1
+dparetoR gives the value that is expected: TRUE
+paretodens gives the value that is expected: TRUE
+############################
+alpha = 2
+beta = -1
+x = 0
+dparetoR gives the value that is expected: TRUE
+paretodens gives the value that is expected: TRUE
+############################
+alpha = 0
+beta = 0
+x = 1
+dparetoR gives the value that is expected: TRUE
+paretodens gives the value that is expected: TRUE
