@@ -8,7 +8,7 @@ dparetoR <- function(x, a, b, logflag = FALSE){
   if (nb < n) b <- rep(b, length.out = n)
   
   if(a <= 0 | b <= 0) ld <- NaN
-  if(x < a) ld <- NA
+  if(x < a) ld <- 0
   ld <- log(b) + b * log(a) - (b + 1) * log(x)
   if(logflag){
     return(ld)

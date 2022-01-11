@@ -5,7 +5,7 @@ using namespace Rcpp;
 double paretodens(double x, double a, double b, bool logflag = false) {
   double ld = 0;
   if(a <= 0 || b <= 0) {
-    ld = 0;
+    stop ("a and b should be restrictly positive");
   }
   else if (x < a) {
     ld = 0;
