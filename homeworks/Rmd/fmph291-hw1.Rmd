@@ -11,7 +11,8 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # The Pareto Distribution
 
-```{r}
+<!-- Stop using MASS::fraction because it's calculating approximate outcomes. -->
+```{r using fraction, eval=FALSE}
 library(MASS)
 
 x <- c(1, 1, 2, 2, 3, 3, 3, 3, 3, 3)
@@ -23,6 +24,16 @@ f <- as.character(df$f_o)
 df_f <- data.frame(x, alpha, beta, f)
 print(df_f)
 ```
+
+```{r}
+x <- c(1, 1, 2, 2, 3, 3, 3, 3, 3, 3)
+alpha <- c(1, 1, 1, 2, 1, 2, 2, 3, 3, 3)
+beta <- c(1, 2, 1, 1, 1, 1, 2, 1, 2, 3)
+f <- strsplit("1, 2, 1/4, 1/2, 1/9, 2/9, 8/27, 1/3, 2/3, 1", ", ")[[1]]
+df_f <- data.frame(x, alpha, beta, f)
+print(df_f)
+```
+
 $f(x|\alpha,\beta)$ is shown as f in the above table.
 
 # Native R
@@ -46,7 +57,6 @@ v <- c(dparetoR( 1, 1, 1), dparetoR( 1, 1, 2), dparetoR( 2, 1, 1), dparetoR( 2, 
 v2 <- as.numeric(df$f_o)
 all.equal(v,v2)
 ```
-
 
 ```{r}
 # dparetoR function
@@ -72,7 +82,13 @@ Rcpp::sourceCpp("../Rcpp/dpareto.cpp")
 # examples
 paretodens(1, 1, 2)
 paretodens(4, 1, 2)
+paretodens <- Vectorize(paretodens)
 ```
 
+```{r}
+paretodens(1000, 1000, 1000)
+paretodens(1, 2, 3)
+dparetoR(1, 2, 3)
+```
 
 

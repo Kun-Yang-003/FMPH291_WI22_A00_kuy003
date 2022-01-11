@@ -8,7 +8,11 @@ double paretodens(double x, double a, double b, bool logflag = false) {
     stop ("a and b should be restrictly positive");
   }
   else if (x < a) {
-    ld = 0;
+    if (logflag) {
+      ld = -std::numeric_limits<double>::infinity();
+    } else {
+      ld = 0;
+    }
   }
   else {
     ld = log(b) + (b * log(a)) - ((b + 1) * log(x));
