@@ -1,6 +1,6 @@
 #include <Rcpp.h>
 using namespace Rcpp;
-// Demonstrate how to `Vectorize' 2 arguments.
+// Demonstrate how to `Vectorize' 3 arguments.
 // Print the indexes and the element indexed.
 // `void' type needs no `return' statement
 // Rprintf is described in Writing R Extensions Section 6.5 Printing
@@ -20,7 +20,7 @@ CharacterVector threeVectors(
     Rprintf(" Zero Length Detected: xn == %d, yn ==%d\n, zn ==%d\n", xn, yn, zn);
   int n = xn > yn ? xn : yn;
   n = n > zn ? n : zn;
-  int ix=0, iy=0, iz = 0;
+  int ix=0, iy=0, iz=0;
   for (int i = 0; i<n; ++i) {
     // Do something here:
     print3Values( i, ix, iy, iz, x[ix], y[iy], z[iz]);

@@ -29,6 +29,7 @@ print(df_f)
 x <- c(1, 1, 2, 2, 3, 3, 3, 3, 3, 3)
 alpha <- c(1, 1, 1, 2, 1, 2, 2, 3, 3, 3)
 beta <- c(1, 2, 1, 1, 1, 1, 2, 1, 2, 3)
+f_o <- c(1, 2, 1/4, 1/2, 1/9, 2/9, 8/27, 1/3, 2/3, 1)
 f <- strsplit("1, 2, 1/4, 1/2, 1/9, 2/9, 8/27, 1/3, 2/3, 1", ", ")[[1]]
 df_f <- data.frame(x, alpha, beta, f)
 print(df_f)
@@ -37,6 +38,45 @@ print(df_f)
 $f(x|\alpha,\beta)$ is shown as f in the above table.
 
 # Native R
+```{r}
+dparetoR <- function(x, a, b, logflag = FALSE){
+  nx <- length(x)
+  na <- length(a)
+  nb <- length(b)
+  n <- max(nx, na, nb)
+  if (nx < n) x <- rep(x, length.out = n)
+  if (na < n) a <- rep(a, length.out = n)
+  if (nb < n) b <- rep(b, length.out = n)
+
+  if(a <= 0 | b <= 0) ld <- NaN
+  if(x < a) ld <- 0
+  ld <- log(b) + b * log(a) - (b + 1) * log(x)
+  if(logflag){
+    return(ld)
+  }else{
+    return(exp(ld))
+  }
+}
+
+dparetoR <- function(x, a, b, logflag = FALSE){
+  nx <- length(x)
+  na <- length(a)
+  nb <- length(b)
+  n <- max(nx, na, nb)
+  if (nx < n) x <- rep(x, length.out = n)
+  if (na < n) a <- rep(a, length.out = n)
+  if (nb < n) b <- rep(b, length.out = n)
+
+  ld <- ifelse(a <= 0 | b <= 0, NaN, ifelse(x < a, -Inf, log(b) + b * log(a) - (b + 1) * log(x)))
+  
+  if(logflag){
+    return(ld)
+  }else{
+    return(exp(ld))
+  }
+}
+```
+
 ```{r}
 source( "../R/dparetoR.R")
 # check with example
@@ -54,7 +94,7 @@ dparetoR( 3, 3, 2)
 dparetoR( 3, 3, 3)
 # check the equality 
 v <- c(dparetoR( 1, 1, 1), dparetoR( 1, 1, 2), dparetoR( 2, 1, 1), dparetoR( 2, 2, 1), dparetoR( 3, 1, 1), dparetoR( 3, 2, 1), dparetoR( 3, 2, 2), dparetoR( 3, 3, 1), dparetoR( 3, 3, 2), dparetoR( 3, 3, 3))
-v2 <- as.numeric(df$f_o)
+v2 <- as.numeric(f_o)
 all.equal(v,v2)
 ```
 
@@ -82,13 +122,16 @@ Rcpp::sourceCpp("../Rcpp/dpareto.cpp")
 # examples
 paretodens(1, 1, 2)
 paretodens(4, 1, 2)
-paretodens <- Vectorize(paretodens)
+# pareto <- Vectorize(paretodens)
 ```
+
 
 ```{r}
-paretodens(1000, 1000, 1000)
-paretodens(1, 2, 3)
-dparetoR(1, 2, 3)
+set.seed(123)
+x <- runif(5,0,10)
+dpareto(x, 4.0, seq(3.0, 5.0, by= 0.75))
+dparetoR(x, 4.0, seq(3.0, 5.0, by= 0.75))
+dpareto(1.0, 2.0, NA)
+dpareto(1000, 1000, 1000)
 ```
-
 
