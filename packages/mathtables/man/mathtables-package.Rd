@@ -13,24 +13,24 @@
 The DESCRIPTION file:
 \packageDESCRIPTION{mathtables}
 \packageIndices{mathtables}
-~~ An overview of how to use the package, including the most important ~~
-~~ functions ~~
+%%~~ An overview of how to use the package, including the most important functions ~~
+Use this package to make tables for a child to learn arithmetic.
 }
 \author{
 \packageAuthor{mathtables}
 
 Maintainer: \packageMaintainer{mathtables}
 }
-\references{
-~~ Literature or other references for background information ~~
-}
-~~ Optionally other standard keywords, one per line, from file KEYWORDS ~~
-~~ in the R documentation directory ~~
+%\references{
+%~~ Literature or other references for background information ~~
+%}
+%~~ Optionally other standard keywords, one per line, from file KEYWORDS in the R ~~
+%~~ documentation directory ~~
 \keyword{ package }
-\seealso{
-~~ Optional links to other man pages, e.g. ~~
-~~ \code{\link[<pkg>:<pkg>-package]{<pkg>}} ~~
-}
-\examples{
-~~ simple examples of the most important functions ~~
-}
+%\seealso{
+%~~ Optional links to other man pages, e.g. ~~
+%~~ \code{\link[<pkg>:<pkg>-package]{<pkg>}} ~~
+%}
+%\examples{
+%~~ simple examples of the most important functions ~~
+%}
