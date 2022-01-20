@@ -102,3 +102,57 @@ df <- read.table(text = "
 
 logSumExp2(df$x, df$y)
 # [1] 1.693147e+00 1.000000e+03 1.000000e+03 2.000005e+01 2.000000e+02 3.000000e+50
+
+
+#### additional task
+#####################
+
+all.equal(hypot2( 3 * (0:10), -4 * (0:10)), hypot1( 3 * (0:10), -4 * (0:10)))
+#Should print out TRUE
+
+#####################
+
+df <- read.table(text = "
+x y
+-1 -1
+1 1000
+1000 1
+-30 40
+300 -400
+3e300 4e300
+1 4e300
+3e300 1
+3e-161 4e-161
+1e-161 4e-161
+3e-161 1", header= T)
+do.call("hypot2", df)
+#Should print out 1.414214e+00 1.000000e+03 1.000000e+03 5.000000e+01
+#5.000000e+02 5.000000e+300 4.000000e+300 3.000000e+300
+#5.000000e-161 4.123106e-161 1.000000e+00
+
+#####################
+
+df <- read.table(text = "
+x y
+1 1
+1 1000
+1000 1
+10 20
+100 200
+2e50 3e50", header= T)
+do.call("logSumExp2", df)
+#Should print out 1.693147e+00 1.000000e+03 1.000000e+03 2.000005e+01 2.000000e+02 3.000000e+50
+
+#####################
+
+df <- read.table(text = "
+x y
+1 3
+2 4
+3 5
+-1 -1
+2 -1
+1 -2", header= T)
+
+all.equal(logSumExp1(df$x, df$y), logSumExp2(df$x, df$y))
+#Should print out TRUE
