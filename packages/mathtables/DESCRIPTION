@@ -1,9 +1,9 @@
 Package: mathtables
 Type: Package
-Title: What the package does (short line)
+Title: Create Arithmetic Tables
 Version: 1.0
 Date: 2022-01-20
-Author: Who wrote it
-Maintainer: Who to complain to <yourfault@somewhere.net>
-Description: More about what it does (maybe more than one line)
-License: What license is it under?
+Author: Armin Schwartzman
+Maintainer: Armin Schwartzman <armins@ucsd.edu>
+Description: Make tables for simple integer arithmetic operations.
+License: GPL ( >= 2.0)
