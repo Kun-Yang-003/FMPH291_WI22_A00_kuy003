@@ -1,0 +1,136 @@
+---
+title: "lab3"
+author: Kun Yang
+date: "`r format(Sys.time(), '%d %B %Y')`"
+output: pdf_document
+---
+
+# Floating Point Errors
+```{r}
+source("../R/fpSum.R")
+```
+
+## simulation on x and y
+```{r}
+set.seed(123)
+x <- runif(50, min = 0, max = 1)
+y <- runif(50, min = 0, max = 1)
+```
+
+```{r}
+d <- 2
+plot(density(abs(fpSum(x, y, digits = d) - (x + y))), main = paste0("digits = ", d))
+# hist(abs(fpSum(x, y, digits = d) - (x + y)), main = paste0("digits = ", d))
+max(abs(fpSum(x, y, digits = d) - (x + y)))
+```
+The maximum value would be 0.05 if x and y were infinitely long.  
+
+The maximum value would be closer to 0.05 if the vectors get longer.  
+```{r, eval=FALSE}
+set.seed(123)
+x <- runif(1000, min = 0, max = 1)
+y <- runif(1000, min = 0, max = 1)
+# plot(density(abs(fpSum(x, y, digits = d) - (x + y))), main = paste0("digits = ", d))
+# hist(abs(fpSum(x, y, digits = d) - (x + y)), main = paste0("digits = ", d))
+max(abs(fpSum(x, y, digits = d) - (x + y)))
+```
+
+### more digits
+```{r}
+d <- 3
+plot(density(abs(fpSum(x, y, digits = d) - (x + y))), main = paste0("digits = ", d))
+# hist(abs(fpSum(x, y, digits = d) - (x + y)), main = paste0("digits = ", d))
+max(abs(fpSum(x, y, digits = d) - (x + y)))
+```
+The maximum value would be 0.005 if x and y were infinitely long.  
+
+
+```{r}
+d <- 4
+plot(density(abs(fpSum(x, y, digits = d) - (x + y))), main = paste0("digits = ", d))
+# hist(abs(fpSum(x, y, digits = d) - (x + y)), main = paste0("digits = ", d))
+max(abs(fpSum(x, y, digits = d) - (x + y)))
+```
+The maximum value would be 0.0005 if x and y were infinitely long.  
+
+
+### machine epsilon
+$\beta$ corresponds to the floating point base, 10.  
+$d$ corresponds to the number of precision, depending on the number of digits we use.  
+
+
+### simulateion with z additionally
+```{r}
+z <- runif(50, min = 0, max = 1)
+```
+
+### digits = 2
+```{r}
+d <- 2
+plot(density(abs(fpSum(fpSum(x, y, digits = d), z) - (x + y + z))), main = paste0("digits = ", d))
+# hist(abs(fpSum(x, y, digits = d) - (x + y)), main = paste0("digits = ", d))
+max(abs(fpSum(fpSum(x, y, digits = d), z, digits = d) - (x + y + z)))
+```
+The maximum value would be 0.1 if x and y were infinitely long.  
+So every time we apply the `fpSum` function, it will introduce an error with the maximum of 0.05 when `digits = 2`.  
+
+### digits = 3
+```{r}
+d <- 3
+plot(density(abs(fpSum(fpSum(x, y, digits = d), z) - (x + y + z))), main = paste0("digits = ", d))
+# hist(abs(fpSum(x, y, digits = d) - (x + y)), main = paste0("digits = ", d))
+max(abs(fpSum(fpSum(x, y, digits = d), z, digits = d) - (x + y + z)))
+```
+The maximum value would be 0.01 if x and y were infinitely long.  
+
+### digits = 4
+```{r}
+d <- 4
+plot(density(abs(fpSum(fpSum(x, y, digits = d), z) - (x + y + z))), main = paste0("digits = ", d))
+# hist(abs(fpSum(x, y, digits = d) - (x + y)), main = paste0("digits = ", d))
+max(abs(fpSum(fpSum(x, y, digits = d), z, digits = d) - (x + y + z)))
+```
+
+```{r}
+set.seed(123)
+x <- runif(1000, min = 0, max = 1)
+y <- runif(1000, min = 0, max = 1)
+z <- runif(1000, min = 0, max = 1)
+d <- 4
+plot(density(abs(fpSum(fpSum(x, y, digits = d), z) - (x + y + z))), main = paste0("digits = ", d))
+# hist(abs(fpSum(x, y, digits = d) - (x + y)), main = paste0("digits = ", d))
+max(abs(fpSum(fpSum(x, y, digits = d), z, digits = d) - (x + y + z)))
+```
+The maximum value would be 0.001 if x and y were infinitely long.  
+
+
+# Better Finv*( … )
+
+```{r}
+source("../R/Finv.R")
+```
+
+When the value of `a` is greater, the precision of the value returned from `Finv0` gets worse.
+
+```{r}
+Finv1(0.5, 100)
+```
+`Finv1` doesn't return an expected outcome.
+
+
+Using `log.p = TRUE` in `Finv2` to address this issue:
+```{r}
+Finv2 <- function(u, a) {
+q <- pnorm(a, lower.tail = FALSE, log.p = T)
+qnorm(q + log(1 - u), lower.tail = FALSE, log.p = T)
+}
+```
+
+```{r}
+all.equal(Finv1(u, 3), Finv2(u, 3))
+```
+`Finv2` returns exactly same values as `Finv1` when `a = 3`
+
+```{r}
+plot(u, Finv2(u, 100), type = "l")
+```
