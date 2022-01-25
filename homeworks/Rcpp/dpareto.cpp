@@ -27,25 +27,25 @@ double paretodens(double x, double a, double b, bool logd = false) {
 
 // [[Rcpp::export]]
 NumericVector dpareto(
-    NumericVector x, NumericVector y, NumericVector z, bool logd = false) {
+    NumericVector x, NumericVector a, NumericVector b, bool logd = false) {
   int xn = x.size();
-  int yn = y.size();
-  int zn = z.size();
-  // if (xn == 0 || yn == 0 || zn == 0) special handling is needed such as
+  int an = a.size();
+  int bn = b.size();
+  // if (xn == 0 || an == 0 || bn == 0) special handling is needed such as
   // returning a zero length vector
-  if (xn==0L || yn == 0L || zn == 0L)
-    Rprintf(" Zero Length Detected: xn == %d, yn ==%d\n, zn ==%d\n", xn, yn, zn);
-  int n = xn > yn ? xn : yn;
-  n = n > zn ? n : zn;
-  int ix=0, iy=0, iz=0;
+  if (xn==0L || an == 0L || bn == 0L)
+    Rprintf(" Zero Length Detected: xn == %d, an ==%d\n, bn ==%d\n", xn, an, bn);
+  int n = xn > an ? xn : an;
+  n = n > bn ? n : bn;
+  int ix=0, ia=0, ib=0;
   NumericVector ld(n);
   for (int i = 0; i<n; ++i) {
     // Do something here:
-    ld[i] = paretodens( x[ix], y[iy], z[iz], logd);
+    ld[i] = paretodens( x[ix], a[ia], b[ib], logd);
     // Update the indexes for the next pass:
     if (++ix == xn ) ix = 0;
-    if (++iy == yn ) iy = 0;
-    if (++iz == zn ) iz = 0;
+    if (++ia == an ) ia = 0;
+    if (++ib == bn ) ib = 0;
   }
   return ld;
 }
