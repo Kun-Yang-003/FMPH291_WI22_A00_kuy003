@@ -2,50 +2,49 @@
 using namespace Rcpp;
 
 // [[Rcpp::export]]
-double paretodens(double x, double a, double b, bool logd = false) {
-  double ld = 0;
-  if(a <= 0 || b <= 0) {
-    stop ("a and b should be restrictly positive");
+double paretodens(double x, double alpha, double beta, bool logd = false)
+{
+  double log_f;
+  if (alpha <= 0.0 || beta <= 0.0)
+  {
+    return NAN;
   }
-  else if (x < a) {
-    if (logd) {
-      ld = -std::numeric_limits<double>::infinity();
-    } else {
-      ld = 0;
-    }
+  if(x<alpha)
+  {
+    return 0;
   }
-  else {
-    ld = log(b) + (b * log(a)) - ((b + 1) * log(x));
-    if (logd) {
-      ld = ld;
-    } else {
-      ld = exp(ld);
-    }
+  else{
+    log_f = log(beta)+ beta*log(alpha) - (beta+1)*log(x);
   }
-  return ld;
+  if(logd == true)
+  {
+    return log_f;
+  }
+  else{
+    return exp(log_f);
+  }
 }
 
-// [[Rcpp::export]]
+
+// [[Rcpp::export(name = .dpareto)]]
 NumericVector dpareto(
-    NumericVector x, NumericVector a, NumericVector b, bool logd = false) {
+    NumericVector x, NumericVector alpha, NumericVector beta, bool logd = false) {
   int xn = x.size();
-  int an = a.size();
-  int bn = b.size();
-  // if (xn == 0 || an == 0 || bn == 0) special handling is needed such as
-  // returning a zero length vector
-  if (xn==0L || an == 0L || bn == 0L)
-    Rprintf(" Zero Length Detected: xn == %d, an ==%d\n, bn ==%d\n", xn, an, bn);
-  int n = xn > an ? xn : an;
-  n = n > bn ? n : bn;
-  int ix=0, ia=0, ib=0;
-  NumericVector ld(n);
+  int alphan = alpha.size();
+  int betan = beta.size();
+  int n = xn;
+  if (alphan > n) n = alphan;
+  if (betan > n) n = betan;
+  NumericVector result;
+  result = NumericVector(n);
+  int ix=0, ialpha=0, ibeta = 0;
   for (int i = 0; i<n; ++i) {
-    // Do something here:
-    ld[i] = paretodens( x[ix], a[ia], b[ib], logd);
+    result[i] = paretodens(x[ix], alpha[ialpha], beta[ibeta], logd=logd );
     // Update the indexes for the next pass:
-    if (++ix == xn ) ix = 0;
-    if (++ia == an ) ia = 0;
-    if (++ib == bn ) ib = 0;
+    if (++ix == xn ) ix = 0 ;
+    if (++ialpha == alphan ) ialpha = 0;
+    if (++ibeta == betan ) ibeta = 0;
   }
-  return ld;
+  return result;
 }
+    
