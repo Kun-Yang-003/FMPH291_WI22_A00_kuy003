@@ -1,0 +1,22 @@
+---
+title: "Introduction to Package 'pareto'"
+author: "Kun Yang & Alexander Zhu"
+date: "1/24/2022"
+output: pdf_document
+---
+
+`dpareto` gives the density distribution function. The Paretp distribution density is calculated using the following formula: $$ f(x|\alpha,\beta) = \frac{\beta{\alpha}^\beta}{x^{\beta+1}} $$
+for $0<\alpha\leq x$ and $\beta>0$. Note that densities are defined on the entire real line; they are zero outside of the support of the distribution.
+
+**usage**
+```{r, eval=FALSE}
+dpareto(2:4, 1, 2)
+```
+
+## Contribution Statement
+
+Both Alex and Kun wrote their own code of the function first and discuss on the final version.
+
+Repository: [kuy003](https://github.com/Kun-Yang-003/FMPH291_WI22_A00_kuy003.git)
+
+
