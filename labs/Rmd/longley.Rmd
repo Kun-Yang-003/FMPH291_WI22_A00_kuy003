@@ -1,0 +1,109 @@
+---
+title: "longley"
+author: "Kun Yang"
+date: "1/27/2022"
+output: pdf_document
+---
+
+## data
+```{r}
+# ? longley
+longley.x <- data.matrix(longley[, 1:6])
+longley.x.1 <- as.matrix(cbind(Intercept = 1, longley.x))
+longley.y <- matrix(longley[, "Employed"], ncol = 1)
+```
+
+
+## part a. exact least squares
+
+### a simple least squares fitting
+```{r}
+ls_fit <- function(x, y, output_type = "floating"){
+  solve(t(x) %*% x) %*% t(x) %*% y
+}
+```
+
+```{r}
+ls_fit(longley.x.1, longley.y)
+```
+
+### introducing package `gmp`
+```{r}
+library(gmp)
+ls_fit_bigq <- function(x, y, output_type = "floating"){
+  x <- as.bigq(x)
+  y <- as.bigq(y)
+  output <- solve.bigq(t(x) %*% x) %*% t(x) %*% y
+  if(output_type == "floating") output <- matrix(as.double(output), ncol = 1)
+  if(output_type == "rational") output <- as.bigq(output)
+  output
+}
+```
+
+```{r}
+round(ls_fit_bigq(longley.x.1, longley.y, output_type = "rational"), 2)
+```
+
+```{r}
+(coef_ls_bigq <- ls_fit_bigq(longley.x.1, longley.y))
+```
+
+
+## part b. Cholesky factorization
+```{r}
+ls_chol <- function(x, y){
+  L <- chol(crossprod(unname(x)))
+  solve(L) %*% solve(t(L)) %*% t(x) %*% y
+}
+```
+
+```{r}
+ls_chol_bigq <- function(x, y, output_type = "floating"){
+  L <- chol(crossprod(unname(x)))
+  L <- as.bigq(L)
+  x <- as.bigq(x)
+  y <- as.bigq(y)
+  output <- solve.bigq(L) %*% solve.bigq(t(L)) %*% t(x) %*% y
+  if(output_type == "floating") output <- matrix(as.double(output), ncol = 1)
+  if(output_type == "rational") output <- as.bigq(output)
+  output
+}
+```
+
+
+### without centering
+```{r}
+(coef_chol_bigq <- ls_chol_bigq(longley.x.1, longley.y))
+```
+
+### using centering
+```{r}
+longley.x.2 <- sweep(longley.x, 2, colMeans(longley.x))
+longley.x.2 <- as.matrix(cbind(Intercept = 1, longley.x.2))
+(coef_c_chol_bigq <- ls_chol_bigq(longley.x.2, longley.y))
+```
+
+
+## part c. comparison
+```{r}
+coef_lm <- coef(lm(Employed ~ ., data = longley))
+coef_lm <- matrix(unname(coef_lm), ncol = 1)
+```
+
+To compare with the centered method, we exclude the intercept term in our comparison.
+
+```{r}
+mean((coef_ls_bigq - coef_lm)[-1,])
+mean((coef_ls_bigq - coef_chol_bigq)[-1,])
+mean((coef_ls_bigq - coef_c_chol_bigq)[-1,])
+```
+
+So, the non-centered Cholesky approach returns greatest biased estimation and centering will help to improve the accuracy.  
+
+```{r, eval=FALSE, include=FALSE}
+tolerance <- 1e-20
+all.equal(coef_lm[-1,], coef_ls_bigq[-1,], tolerance = tolerance)
+all.equal(coef_lm[-1,], coef_chol_bigq[-1,], tolerance = tolerance)
+all.equal(coef_lm[-1,], coef_c_chol_bigq[-1,], tolerance = tolerance)
+```
+
