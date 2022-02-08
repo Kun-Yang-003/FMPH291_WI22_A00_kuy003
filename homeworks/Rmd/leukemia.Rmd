@@ -1,0 +1,70 @@
+---
+title: "leukemia"
+author: "Kun Yang & Alexander Zhu"
+date: "2/7/2022"
+output: pdf_document
+---
+
+# part b
+```{r}
+library(MASS)
+```
+
+To find the maximum likelihood estimates, we construct the log likelihood function. 
+```{r}
+f <- function(par,y,x,u,n) {
+  beta0 <- par[1]
+  beta1 <- par[2]
+  beta2 <- par[3]
+  delta <- par[4]
+   n <- 33
+  # i <- 1:n
+  z <- (y-beta0-beta1*x-beta2*u)/delta
+  -((-1)*n*log(delta)+sum(z-exp(z)))
+}
+
+x <- log(leuk$wbc/10000)
+y <- log(leuk$time)
+u <- as.numeric(leuk$ag) - 1
+```
+
+The initial values are from the simple linear regression result. 
+```{r}
+fit.lm <- lm(log(time) ~ log(wbc/10000) + ag, data = leuk)
+out.opt <- optim(par = c(unname(fit.lm$coefficients), 1), fn = f, x = x, y = y, u = u, n = 33, hessian = T)
+```
+
+The output of the maximum likelihood estimates for $\beta_{0}$, $\beta_{1}$, $\beta_{2}$ and $\delta$ are:
+```{r}
+out.opt$par
+```
+
+The corresponding standard errors are: 
+```{r}
+sqrt(diag(solve(out.opt$hessian)))
+```
+
+# part c
+
+To check if the function returns the maximum of likelihood, which is equivalent to the minimum of defined R function `f`, we add a value from -1 to 1 to one of the 4 parameters each time and calculate the corresponding likelihood. The table below shows the changes of each parameter, the corresponding likelihoods and the difference from the likelihood based on the estimates calculated by the optimization process. The likelihood, at least reaches its local maximum, when the parameters are exactly equal to the estimated parameters.  
+
+```{r}
+d <- as.matrix(
+  rbind(cbind(seq(-1, 1, 0.1), 0, 0, 0), 
+        cbind(0, seq(-1, 1, 0.1), 0, 0), 
+        cbind(0, 0, seq(-1, 1, 0.1), 0), 
+        cbind(0, 0, 0, seq(-1, 1, 0.1)))
+)
+m <- matrix(rep(out.opt$par, each = 21*4), ncol = 4) + d
+d <- cbind(d, -apply(m, MARGIN = 1, FUN = f, y = y, x = x, u = u, n = n))
+d <- cbind(d, d[,5] - (-f(out.opt$par, y = y, x = x, u = u, n = n)))
+d[,5] <- round(d[,5], 2)
+d[,6] <- round(d[,6], 2)
+colnames(d) <- c("d_beta0", "d_beta1", "d_beta2", "d_delta", "likelihood", "difference")
+d
+```
+
+# Contribution Statement
+Both Alex and Kun wrote their own code of the function first and discuss on the final version.
+
+Repository: [kuy003](https://github.com/Kun-Yang-003/FMPH291_WI22_A00_kuy003.git)
