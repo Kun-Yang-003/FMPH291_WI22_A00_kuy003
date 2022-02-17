@@ -1,0 +1,104 @@
+---
+title: "HW6"
+author: "Kun Yang & Alexander Zhu"
+date: "2/14/2022"
+output: pdf_document
+---
+
+To use EM algorithm, we first write an R function called tabll that will compute the log likelihood: 
+```{r}
+tabll <- function(p.vec, eta.mat, X){
+  #X is a N by C matrix of counts
+  N <- nrow(X)
+  C <- ncol(X)
+  #p.vec is a vector of length M containing (p1,p2,...,pm)
+  M <- length(p.vec)
+  # check condition that eta.mat is a M by C matrix 
+  if(ncol(eta.mat) != C) warning("wrong dimension")
+  if(nrow(C) != M) warning("wrong dimension")
+  m.vec <- rowSums(X)
+  # initial value 
+  ll <- 1
+  for(i in 1:N){
+  lli <- 0
+  # log likelihood function 
+  for(j in 1:M){
+    lli <- lli + p.vec[j] * factorial(m.vec[i]) * prod(eta.mat[j,] ^ X[i,] / factorial(X[i,]))
+  }
+  ll <- ll * lli
+  }
+  ll
+}
+```
+
+Then we move to step 4. We write a function ExZ.X, to compute the expected value of Z. We start with a function prop.by.row to show the proportion of each row. 
+
+```{r}
+# prop.by.row <- function(X) t(apply(X, 1, function(x){x/sum(x)}))
+prop.by.row <- function(X) sweep(X, 1, rowSums(X), "/")
+
+ExZ.X <- function(p.vec, eta.mat, X){
+  N <- nrow(X)
+  C <- ncol(X)
+  M <- length(p.vec)
+# outer(X, 1:N, 1:M, function(x, i, j) p.vec[j] * dmultinom(X[i,], prob = eta.mat[j,]))
+  Ez <- matrix(nrow = N, ncol = M)
+  for(i in 1:N){
+  for(j in 1:M){
+    Ez[i, j] <- p.vec[j] * dmultinom(X[i,], prob = eta.mat[j,])
+  }
+  }
+  prop.by.row(Ez)
+}
+```
+
+Next, we construct function mparms. 
+```{r}
+Mparms <- function(expect.Z, X){
+  eta.mat <- prop.by.row(t(expect.Z) %*% X)
+  p.vec <- colMeans(expect.Z)
+  list(eta = eta.mat, p = p.vec)
+}
+```
+
+Following step 6 and 7,we test if there is any difference between the original value and the calculated one by trying out Exz.X as suggested. 
+```{r test}
+set.seed(121)
+N <- 20
+M <- 2
+C <- 3
+n <- 10
+true.Z.vec <- as.vector(unlist(mapply(rep, c(1, 2), c(n, N-n))))
+true.Z <- matrix(0, nrow = N, ncol = M)
+true.eta <- round(prop.by.row(matrix(runif(M * C), nrow = M)), 2)
+X <- matrix(nrow = N, ncol = C)
+m.vec <- round(runif(N) * 100)
+for(i in 1:N){
+  true.Z[i, true.Z.vec[i]] <- 1
+}
+for(i in 1:N){
+  X[i,] <- as.vector(rmultinom(1, size = m.vec[i], prob = true.Z[i,] %*% true.eta))
+}
+
+p.vec <- rep(1/M, M)
+eta.mat <- prop.by.row(X)
+
+for(it in 1:20){
+expect.Z <- ExZ.X(p.vec, eta.mat, X)
+expect.M <- Mparms(expect.Z, X)
+p.vec <- expect.M$p
+eta.mat <- expect.M$eta
+}
+# check ExZ.X
+round(colMeans(expect.Z), 2)
+# check eta.mat
+round(expect.M$eta, 2)
+true.eta
+```
+The Exz.X seems to return as expected. However, we still encounter some challenges to reach the best expected eta.mat.
+
+
+# Contribution Statement
+Both Alex and Kun wrote their own code of the function first and discuss on the final version.
+
+Repository: [kuy003](https://github.com/Kun-Yang-003/FMPH291_WI22_A00_kuy003.git)

@@ -1,0 +1,53 @@
+---
+title: "EMX105"
+author: "Kun Yang"
+date: "2/16/2022"
+output: pdf_document
+---
+
+```{r}
+source("../R/tabll.R")
+```
+
+```{r}
+X105 <- read.csv("./X105.csv")
+```
+
+```{r}
+M <- 2
+for(M in 2:10){
+  X <- as.matrix(X105)
+  N <- nrow(X)
+  p.vec <- rep(1/M, M)
+  eta.mat <- matrix(nrow = M, ncol = ncol(X))
+  for(j in 1:M){
+    eta.mat[j,] <- colMeans(prop.by.row(X[sample(1:N, size = 10),]))
+  }
+
+  # cat("M =", M)
+  # cat("\n")
+  ll.old <- log(tabll(p.vec, eta.mat, X))
+  # cat("before update:", ll.old)
+  # cat("\n")
+  ll.new <- log(updatell(p.vec, eta.mat, X, 50)$ll)
+  # cat("after update:", ll.new)
+  # cat("\n")
+  # cat("\n")
+
+  while(abs(ll.new - ll.old) > 0.001){
+    cat("M =", M)
+    cat("\n")
+    cat("before update:", ll.old)
+    cat("\n")
+    cat("after update:", ll.new)
+    cat("\n")
+    cat("\n")
+    ll.old <- ll.new
+    ll.new <- log(updatell(p.vec, eta.mat, X, 50)$ll)
+  }
+}
+```
+
+All updates of loglikelihoods finishes within 50 iterations.  
+It is not always non-decreasing as M increasing.
+And we can guess there are at least 4 components as the loglikelihoods no longer get big changes when increasing M after 4.
