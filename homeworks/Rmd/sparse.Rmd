@@ -113,7 +113,7 @@ Using the method in part (a):
 
 ```{r}
 loglikhd_1(y, a)
-system.time(loglikhd_2(y, a))
+system.time(loglikhd_1(y, a))
 ```
 
 Using the method in part (b):  

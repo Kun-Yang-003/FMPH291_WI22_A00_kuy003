@@ -8,22 +8,21 @@ output: pdf_document
 To use EM algorithm, we first write an R function called tabll that will compute the log likelihood: 
 ```{r}
 tabll <- function(p.vec, eta.mat, X){
-  #X is a N by C matrix of counts
+  # X is a N by C matrix of counts
   N <- nrow(X)
   C <- ncol(X)
-  #p.vec is a vector of length M containing (p1,p2,...,pm)
+  # p.vec is a vector of length M containing (p1,p2,...,pm)
   M <- length(p.vec)
   # check condition that eta.mat is a M by C matrix 
   if(ncol(eta.mat) != C) warning("wrong dimension")
   if(nrow(C) != M) warning("wrong dimension")
   m.vec <- rowSums(X)
-  # initial value 
+  # log likelihood function 
   ll <- 1
   for(i in 1:N){
   lli <- 0
-  # log likelihood function 
   for(j in 1:M){
-    lli <- lli + p.vec[j] * factorial(m.vec[i]) * prod(eta.mat[j,] ^ X[i,] / factorial(X[i,]))
+    lli <- lli + p.vec[j] * log(dmultinom(X[i,], prob = eta.mat[j,]))
   }
   ll <- ll * lli
   }
@@ -67,7 +66,7 @@ set.seed(121)
 N <- 20
 M <- 2
 C <- 3
-n <- 10
+n <- 0.4*N
 true.Z.vec <- as.vector(unlist(mapply(rep, c(1, 2), c(n, N-n))))
 true.Z <- matrix(0, nrow = N, ncol = M)
 true.eta <- round(prop.by.row(matrix(runif(M * C), nrow = M)), 2)
