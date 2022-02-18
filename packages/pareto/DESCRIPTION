@@ -1,9 +1,12 @@
 Package: pareto
 Type: Package
-Title: density function of pareto distribution
-Version: 1.0
-Date: 2022-01-24
-Author: Kun Yang & Alexander Zhu
+Title: pareto distribution
+Version: 1.1
+Date: 2022-02-17
+Author: Kun Yang
 Maintainer: Kun Yang <kuy003@ucsd.edu>
-Description: density function of pareto distribution
+Description: Pareto Distribution
 License: GPL ( >= 2.0)
+Imports: Rcpp (>= 0.12.16)
+LinkingTo: Rcpp
+NeedsCompilation: yes
