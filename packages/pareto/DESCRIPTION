@@ -1,12 +1,12 @@
 Package: pareto
 Type: Package
 Title: pareto distribution
-Version: 1.1
-Date: 2022-02-17
+Version: 1.2
+Date: 2022-02-22
 Author: Kun Yang
 Maintainer: Kun Yang <kuy003@ucsd.edu>
-Description: Pareto Distribution
+Description: Pareto Distribution.
 License: GPL ( >= 2.0)
-Imports: Rcpp (>= 0.12.16)
+Imports: Rcpp (>= 0.12.16), stats
 LinkingTo: Rcpp
 NeedsCompilation: yes
