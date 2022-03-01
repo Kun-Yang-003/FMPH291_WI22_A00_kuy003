@@ -1,0 +1,214 @@
+---
+title: "Homework 8"
+author: "Kun Yang & Alexander Zhu"
+date: "2/28/2022"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+A brief explanation of how rejection sampling works:
+The rejection sampling method generates sampling values from a target distribution $X$ with arbitrary probability density function $f(x)$ by using a proposal distribution $Y$ with probability density $g(x)$.  The idea is that one can generate a sample value from $X$ by instead sampling from $Y$ and accepting the sample $Y$ with probability $f(x)/(Mg(x))$, repeating the draws from $Y$ until a value is accepted. $M$ here is a constant and the finite bound on the likelihood ratio $f(x)/g(x)$. The  validation of this method is the envelope principle: when simulating the pair $(x,v=u*Mg(x))$, one produces a uniform simulation over the subgraph of $Mg(x)$. Accepting only pairs such that $u<f(x)/(Mg(x))$ then produces pairs $(x,y)$ uniformly distributed over the subgraph of  and thus, a simulation from $f(x)$.
+
+In this homework,We know the density of proposal distribution(here it is Cauchy distribution) to sample from, and create an envelop which completely encloses the proposed distribution. 
+
+The target function here is the dlnp function which returns the density of $\phi(x) exp(-exp(x))exp(xy)$. 
+
+The envelop here is the random deviates function rlnp which returns samples from a target distribution whose density is proportional to $\phi(x) exp(-exp(x))exp(xy)$ (i.e. the R function dlnp) using a rejection sampler. In detail, the rlnp function should find a curve proportional to a Cauchy density (with scale as its scale parameter) that matches dlnp as nearly as possible and always is at least as high as dlnp. That curve is the envelope. 
+
+## log-Normal Poisson distribution
+
+The density of LNP distribution:  
+$$
+f(x;y)=\phi(x)\exp(-\exp(x))\exp(xy)
+$$
+
+```{r}
+dlnp <-
+function(x,y ,log = FALSE) {
+val <-
+dnorm( x, log = TRUE ) +
+dpois( y, exp( x ), log = TRUE)
+if (log) val else exp( val )
+}
+```
+
+The mode of the density can be found roughly with `locator` function.  
+```{r}
+# curve(dlnp(x,2),-5,5)
+# grid()
+# locator(1)
+# c(0.4092479, 0.09262501)
+```
+
+```{r, eval=FALSE}
+curve(dcauchy(x,0.4092479,1),-5,5)
+# 0.3187746
+```
+
+### envelope
+Envelope is a scaled Cauchy density that approximates a LNP density by timing the relative height of a LNP density curve to a Cauchy density curve.  
+
+```{r}
+curve(dlnp(x,2),-5,5)
+curve(0.09262501/0.3187746*dcauchy(x,0.4092479,1),-5,5, add = T, col="red")
+```
+
+
+
+## rlnp & rlnpPlot
+```{r}
+rlnp <- function(n, y, scale = 1){
+  # x <- seq(-5,5,0.001)
+  # imax <- which.max(dlnp(x,y))
+  # x0 <- x[imax]
+  # M <- dlnp(x0,y)/max(dcauchy(x, x0, scale))
+  x0 <- optimize(function(x){dlnp(x, y)}, c(-5, 5), maximum = T)$maximum
+  M <- dlnp(x0,y)/optimize(function(x){dcauchy(x, x0, scale)}, c(-5, 5), maximum = T)$objective
+  x <- c()
+  yunif <- c()
+  dratio <- c()
+  keep <- c()
+  n_ <- 10*n
+  while(sum(keep) < n){
+    x_ <- rcauchy(n_)
+    yunif_ <- runif(n_)
+    dratio_ <- dlnp(x_, y) / (M*dcauchy(x_, x0, scale))
+    keep_ <- yunif_ <= dratio_
+    x <- c(x, x_)
+    yunif <- c(yunif, yunif_)
+    dratio <- c(dratio, dratio_)
+    keep <- c(keep, keep_)
+  }
+  i.end <- max(which(keep)[1:n])
+  return(list(x = x[1:i.end], yunif = yunif[1:i.end], dratio = dratio[1:i.end], keep = keep[1:i.end], x0 = x0, M = M, y = y, scale = scale))
+}
+
+rlnpPlot <- function(obj){
+  with(obj, {
+    curve( M * dcauchy( x , x0, scale), min(x[ keep ]), max(x[ keep ], lty = 4), ylab="", xlab = "")
+    curve( dlnp( x , y), min(x[ keep ]), max(x[ keep ]), col = 2, add = TRUE, ylab="", xlab = "")
+    points( x[ keep ], yunif[ keep ] * (dcauchy( x[ keep ] , x0, scale) * M), pch=".", col=2, ylab="", xlab = "")
+    points( x[ ! keep ], yunif[ ! keep ] * (dcauchy( x[ ! keep ] , x0, scale) * M), pch=".", ylab="", xlab = "")
+    legend( "topright", col = 1:2, lty = rep( 1, 2 ), legend = c( "denvelope/rejected", "dlnp/accepted"))
+    title(main = paste0("dlnp(x, ", y, ")"), sub = paste0("denvelope(x) = ", round(M,2), " * dcauchy(x,", round(x0,2), ",", round(scale,2), ")", "\n", "fraction of samples rejected = ", round(1-sum(keep)/length(keep),2)))
+  })
+}
+```
+
+When the `y` parameter is 0, the envelope doesn't cover the density of LNP well (over 5000 `dratio` values exceeds 1.0), so there is a serious flaw in this sampler.  
+```{r}
+lst.lnp <- rlnp(10000, 0)
+rlnpPlot(lst.lnp)
+```
+
+```{r}
+dratio_ex1 <- function(obj, nmax=20){
+  dratio_ex <- obj$dratio[which(lst.lnp$dratio>1)]
+if(length(dratio_ex) == 0){
+  cat("No dratio exceeds 1.0")
+}else if(length(dratio_ex) > nmax){
+  cat(length(dratio_ex), "dratio values exceeds 1.0")
+}else{
+  cat(length(dratio_ex), "dratio values exceeds 1.0:", paste(dratio_ex, sep = ", "))
+}
+}
+```
+
+```{r}
+dratio_ex1(lst.lnp)
+```
+
+
+When the `y` parameter is 3, the envelope covers the density of LNP from the plot but the fraction of rejection is higher (`M` is smaller).  
+```{r}
+lst.lnp <- rlnp(10000, 3)
+rlnpPlot(lst.lnp)
+```
+
+```{r}
+dratio_ex1(lst.lnp)
+```
+
+
+When the `y` parameter is 10, the fraction of rejection gets higher.  
+
+```{r}
+lst.lnp <- rlnp(10000, 10)
+rlnpPlot(lst.lnp)
+```
+
+```{r}
+dratio_ex1(lst.lnp)
+```
+
+
+For the `y` parameter of 100, almost all generated samples are rejected.  
+
+```{r}
+lst.lnp <- rlnp(10000, 100)
+rlnpPlot(lst.lnp)
+```
+
+```{r}
+dratio_ex1(lst.lnp)
+```
+
+
+If we change the scale parameter to 2, more samples get rejected.  
+
+```{r}
+lst.lnp <- rlnp(10000, 100, 2)
+rlnpPlot(lst.lnp)
+```
+
+```{r}
+dratio_ex1(lst.lnp)
+```
+
+
+When the scale parameter is 0.1, the envelope doesn't cover `dlnp` completely.  
+
+```{r}
+lst.lnp <- rlnp(10000, 100, 0.1)
+rlnpPlot(lst.lnp)
+```
+
+```{r}
+dratio_ex1(lst.lnp)
+```
+
+
+When the scale parameter is 0.2, the envelope seems to cover `dlnp` completely but the rejection fraction is almost 1.  
+
+```{r}
+lst.lnp <- rlnp(10000, 100, 0.2)
+rlnpPlot(lst.lnp)
+```
+
+```{r}
+dratio_ex1(lst.lnp)
+```
+
+
+The rejection fraction is smaller when scale parameter equals to 0.15. So we take 0.15 as the `best.scale` for `y=100`. Considering few `dratio` values exceeds 1 in this sampler, 0.2 should be keep as a more conservative choice.  
+
+```{r}
+lst.lnp <- rlnp(10000, 100, 0.15)
+rlnpPlot(lst.lnp)
+```
+
+```{r}
+dratio_ex1(lst.lnp)
+```
+
+
+
+## Contribution Statement
+
+Both Alex and Kun wrote their own code of the function first and discuss on the final version.
+
+Repository: [kuy003](https://github.com/Kun-Yang-003/FMPH291_WI22_A00_kuy003.git)
+
