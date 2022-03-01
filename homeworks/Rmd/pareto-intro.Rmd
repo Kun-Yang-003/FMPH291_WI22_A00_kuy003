@@ -172,7 +172,7 @@ plot(density(val.q), col = "red", lty = 2, main = "", xlab = "x", ylab = "Densit
 ```
 
 ```{r}
-wilcox.test(val.r, val.q)
+dgof::ks.test(val.r, val.q)
 ```
 
 
