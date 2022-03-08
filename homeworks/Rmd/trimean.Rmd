@@ -1,0 +1,98 @@
+---
+title: "trimean"
+author: "Kun Yang & Alexander Zhu"
+date: "3/7/2022"
+output: pdf_document
+---
+
+Conduct a simulation study to assess the bias and variance of the trimean for samples of size 9 from the
+standard normal distribution and for t-distributions with 4 and 10 degrees of freedom.
+
+Let us construct the Standard normal distribution as below: 
+```{r}
+#sample size is 9
+n <- 9
+# simulation 10000 times
+N <- 10000
+
+# mean of standard normal distribution 
+mu_ <- 0
+# standard deviation of standard normal distribution 
+sd_ <- 1
+
+set.seed(12)
+#construct the trimean function that is an estimate of location based on the median and the quartiles that is constructed as a weighted average with the median weighted twice as heavily as each quartile.
+Xtrimean <- rep(NA, N)
+for(j in 1:N){
+  Xn <- rnorm(n, mu_, sd_)
+  Xn <- sort(Xn)
+  Xtrimean[j] <- (Xn[3]+2*Xn[5]+Xn[7])/4
+}
+
+(E.Xtrimean <- mean(Xtrimean))
+(E.Xtrimean.true <- (t(c(1, 2, 1)) %*% qnorm(c(1/3, 1/2, 2/3), mu_, sd_))[1])
+(Var.Xtrimean <- var(Xtrimean))
+# standard errors of estimates
+(SE.Var.Xtrimean <- sqrt(var((Xtrimean-E.Xtrimean)^2)/N))
+SE.Var.Xtrimean.1 <- sqrt(2/N)*Var.Xtrimean
+
+```
+Then we construct t-distribution with 4 degrees of freedom: 
+
+```{r}
+#sample size is 9
+n <- 9
+# simulation 10000 times
+N <- 10000
+
+# degree of freedom is 4
+df_ <- 4
+
+set.seed(12)
+Xtrimean <- rep(NA, N)
+for(j in 1:N){
+  Xn <- rt(n, df_)
+  Xn <- sort(Xn)
+  Xtrimean[j] <- (Xn[3]+2*Xn[5]+Xn[7])/4
+}
+
+(E.Xtrimean <- mean(Xtrimean))
+(E.Xtrimean.true <- (t(c(1, 2, 1)) %*% qt(c(1/3, 1/2, 2/3), df_))[1])
+(Var.Xtrimean <- var(Xtrimean))
+(SE.Var.Xtrimean <- sqrt(var((Xtrimean-E.Xtrimean)^2)/N))
+SE.Var.Xtrimean.1 <- sqrt(2/N)*Var.Xtrimean
+```
+
+Next we construct a t-distribution with 10 degrees of freedom: 
+
+```{r}
+#sample size is 9
+n <- 9
+# simulation 10000 times
+N <- 10000
+
+# degree of freedom is 10
+df_ <- 10
+
+set.seed(12)
+Xtrimean <- rep(NA, N)
+for(j in 1:N){
+  Xn <- rt(n, df_)
+  Xn <- sort(Xn)
+  Xtrimean[j] <- (Xn[3]+2*Xn[5]+Xn[7])/4
+}
+
+(E.Xtrimean <- mean(Xtrimean))
+(E.Xtrimean.true <- (t(c(1, 2, 1)) %*% qt(c(1/3, 1/2, 2/3), df_))[1])
+(Var.Xtrimean <- var(Xtrimean))
+(SE.Var.Xtrimean <- sqrt(var((Xtrimean-E.Xtrimean)^2)/N))
+SE.Var.Xtrimean.1 <- sqrt(2/N)*Var.Xtrimean
+```
+Based on the results, the standard error for the standard normal distribution is 0.001903596 which is the smallest compared to the t-distribution simulation results. For the t-distribution simulation, with the increase of degree of freedom from 4 to 10, the standard error decreases from  0.00261053 to 0.002079812. This is with our intuition that when the degree of freedom increases large enough, the simulation result of t-distribution would coincide with that of standard normal distribution. 
+
+
+## Contribution Statement
+
+Both Alex and Kun wrote their own code of the function first and discuss on the final version.
+
+Repository: [kuy003](https://github.com/Kun-Yang-003/FMPH291_WI22_A00_kuy003.git)
