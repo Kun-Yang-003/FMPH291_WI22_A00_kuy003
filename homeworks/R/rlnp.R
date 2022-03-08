@@ -1,10 +1,8 @@
 rlnp <- function(n, y, scale = 1){
-  # x <- seq(-5,5,0.001)
-  # imax <- which.max(dlnp(x,y))
-  # x0 <- x[imax]
-  # M <- dlnp(x0,y)/max(dcauchy(x, x0, scale))
-  x0 <- optimize(function(x){dlnp(x, y)}, c(-5, 5), maximum = T)$maximum
-  M <- dlnp(x0,y)/optimize(function(x){dcauchy(x, x0, scale)}, c(-5, 5), maximum = T)$objective
+  a <- -1 + log( max(1, y) )
+  b <- log( max(1, y) )
+  x0 <- optimize(function(x){dlnp(x, y)}, c(a, b), maximum = T)$maximum
+  M <- optimize(function(x){dlnp(x0,y,log=T)-dcauchy(x, x0, scale,log=T)}, x0+c(-2, sqrt( .Machine$double.eps )), maximum = T)$objective
   x <- c()
   yunif <- c()
   dratio <- c()
