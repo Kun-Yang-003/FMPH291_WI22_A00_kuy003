@@ -64,7 +64,7 @@ rlnp <- function(n, y, scale = 1){
   a <- -1 + log( max(1, y) )
   b <- log( max(1, y) )
   x0 <- optimize(function(x){dlnp(x, y)}, c(a, b), maximum = T)$maximum
-  M <- optimize(function(x){dlnp(x0,y,log=T)-dcauchy(x, x0, scale,log=T)}, x0+c(-2, sqrt( .Machine$double.eps )), maximum = T)$objective
+  M <- exp(optimize(function(x){dlnp(x0,y,log=T)-dcauchy(x, x0, scale,log=T)}, x0+c(-2, sqrt( .Machine$double.eps )), maximum = T)$objective+1e-06)
   x <- c()
   yunif <- c()
   dratio <- c()
