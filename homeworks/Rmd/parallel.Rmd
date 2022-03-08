@@ -1,0 +1,44 @@
+---
+title: "parallel"
+author: "Kun Yang & Alexander Zhu"
+date: "3/7/2022"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+# source the rlnp function
+source("../R/rlnp.R")
+# check the length of rlnpx to see it should return a vector of 1000 draws 
+length(rlnpx(1000, 10, 0.5))
+```
+
+`First, we investigate the elapsed time for computing rlnpx(5e5,10,1). It is noted here that we don't compute rlnpx(5e6,10,1) as asked given the long running time in local server. 
+```{r}
+# system.time(rlnpx(5e6, 10, 1))
+# Error: cannot allocate vector of size 1.9 Gb
+# try 5e5 instead
+n <- 5e5
+system.time(rlnpx(n, 10, 1))
+```
+
+```{r}
+n5 <- n/5
+system.time(unlist(lapply(list(n5,n5,n5,n5,n5), rlnpx, y=10, scale=1)))
+```
+Then we compare it with the use of parallel library. 
+```{r}
+library(parallel)
+system.time(unlist(mclapply(list(c1=n5,c2=n5,c3=n5,c4=n5,c5=n5), rlnpx, y=10, scale=1, mc.cores=3L)))
+```
+The result suggests the elapsed time reduced significantly from 11.585 to 6.1. This confirms the power of using parallel library to reduce the elapsed time. 
+
+
+## Contribution Statement
+
+Both Alex and Kun wrote their own code of the function first and discuss on the final version.
+
+Repository: [kuy003](https://github.com/Kun-Yang-003/FMPH291_WI22_A00_kuy003.git)

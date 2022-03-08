@@ -1,3 +1,11 @@
+dlnp <-
+  function(x,y ,log = FALSE) {
+    val <-
+      dnorm( x, log = TRUE ) +
+      dpois( y, exp( x ), log = TRUE)
+    if (log) val else exp( val )
+  }
+
 rlnp <- function(n, y, scale = 1){
   a <- -1 + log( max(1, y) )
   b <- log( max(1, y) )
@@ -31,4 +39,9 @@ rlnpPlot <- function(obj){
     legend( "topright", col = 1:2, lty = rep( 1, 2 ), legend = c( "denvelope/rejected", "dlnp/accepted"))
     title(main = paste0("dlnp(x, ", y, ")"), sub = paste0("denvelope(x) = ", round(M,2), " * dcauchy(x,", round(x0,2), ",", round(scale,2), ")", "\n", "fraction of samples rejected = ", round(1-sum(keep)/length(keep),2)))
   })
+}
+
+rlnpx <- function(...){
+  obj_rlnp <- rlnp(...)
+  obj_rlnp$x[obj_rlnp$keep]
 }
