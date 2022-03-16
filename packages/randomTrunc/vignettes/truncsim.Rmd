@@ -1,0 +1,407 @@
+---
+title: "truncsim"
+author: "Kun Yang & Alexander ZHU"
+date: "3/15/2022"
+output: pdf_document
+---
+
+```{r}
+library(randomTrunc)
+```
+
+The maximization procedure is implemented with `optim` function on the negative loglikelihoods with respect to the models.  
+
+```{r}
+N <- 1000
+```
+
+## Simulation 1
+It is not easy to perform a grid search with 4 parameters, so we choose to generate 1000 sets of random parameters to evaluate the accuracy of the 2 models (all our conclusions will not change even if we change N to 10000).  
+
+```{r}
+n <- 20
+mu_x <- 0.0
+sigma_x <- 1.0
+mu_z <- -1.0
+sigma_z <- 0.10
+
+set.seed(123)
+x <- rtrunc4(n, mu_z, sigma_z, mu_x, sigma_x)
+
+lst_parm <- list()
+lst_parm$mu_x <- runif(N, -3, 3)
+lst_parm$sigma_x <- runif(N, 0, 2)
+lst_parm$mu_z <- runif(N, -2, 2)
+lst_parm$sigma_z <- runif(N, 0, 1)
+```
+
+**Use 3 parameters:**  
+
+```{r}
+set.seed(123)
+n_error <- 0
+n_converge <- 0
+m_par <- matrix(nrow = N, ncol = 3)
+for(i in 1:N){
+  out <- try(suppressWarnings(maxlik(x, model = "three", parm = c(lst_parm$mu_z[i], lst_parm$sigma_z[i], lst_parm$mu_x[i], lst_parm$sigma_x[i]))), silent = T)
+  if(class(out) != "try-error"){
+    if(out$convergence == 0){
+      n_converge <- n_converge + 1
+      m_par[i,] <- out$par
+    }
+  }else{
+    n_error <- n_error + 1
+  }
+}
+colnames(m_par) <- c("mu_z", "mu_x", "sigma_x")
+m_par <- na.omit(m_par)
+
+cat("Number of failures due to inappropriate initial parameters: ", n_error, " (", round(n_error/N*100,2), "%)", sep = "")
+cat("\n")
+cat("Percent of convergence of the optim function: ", round(n_converge/(N-n_error)*100,2), "%", " (", n_converge, "/", N-n_error, ")", ", ", round(n_converge/(N)*100,2), "%", " (", n_converge, "/", N, ")", sep = "")
+cat("\n")
+cat("Only coverged results are used for calculating MSEs.")
+cat("\n")
+
+cat("MSE of mu_z: ", mean((m_par[,"mu_z"] - mu_z)^2))
+cat("\n")
+cat("MSE of mu_x: ", mean((m_par[,"mu_x"] - mu_x)^2))
+cat("\n")
+cat("MSE of sigma_x: ", mean((m_par[,"sigma_x"] - sigma_x)^2))
+cat("\n")
+```
+
+**Use 4 parameters:**  
+
+```{r}
+set.seed(123)
+n_error <- 0
+n_converge <- 0
+m_par <- matrix(nrow = N, ncol = 4)
+for(i in 1:N){
+  out <- try(suppressWarnings(maxlik(x, model = "four", parm = c(lst_parm$mu_z[i], lst_parm$sigma_z[i], lst_parm$mu_x[i], lst_parm$sigma_x[i]))), silent = T)
+  if(class(out) != "try-error"){
+    if(out$convergence == 0){
+      n_converge <- n_converge + 1
+      m_par[i,] <- out$par
+    }
+  }else{
+    n_error <- n_error + 1
+  }
+}
+colnames(m_par) <- c("mu_z", "sigma_z", "mu_x", "sigma_x")
+m_par <- na.omit(m_par)
+
+cat("Number of failures due to inappropriate initial parameters: ", n_error, " (", round(n_error/N*100,2), "%)", sep = "")
+cat("\n")
+cat("Percent of convergence of the optim function: ", round(n_converge/(N-n_error)*100,2), "%", " (", n_converge, "/", N-n_error, ")", ", ", round(n_converge/(N)*100,2), "%", " (", n_converge, "/", N, ")", sep = "")
+cat("\n")
+cat("Only coverged results are used for calculating MSEs.")
+cat("\n")
+
+cat("MSE of mu_z: ", mean((m_par[,"mu_z"] - mu_z)^2))
+cat("\n")
+cat("MSE of sigma_z: ", mean((m_par[,"sigma_z"] - sigma_z)^2))
+cat("\n")
+cat("MSE of mu_x: ", mean((m_par[,"mu_x"] - mu_x)^2))
+cat("\n")
+cat("MSE of sigma_x: ", mean((m_par[,"sigma_z"] - sigma_x)^2))
+cat("\n")
+```
+
+For this simulation, the 3 parameters model works better than the 4 parameters model. It has higher accuracy and higher rate of convergence, and the program costs less time. But the 3 parameter method requires more appropriate choices on the initial values to avoid the failures at the initialization.  
+
+
+## Simulation 2
+ 
+
+```{r}
+n <- 100
+mu_x <- 0.0
+sigma_x <- 1.0
+mu_z <- -1.0
+sigma_z <- 0.10
+
+set.seed(123)
+x <- rtrunc4(n, mu_z, sigma_z, mu_x, sigma_x)
+
+lst_parm <- list()
+lst_parm$mu_x <- runif(N, -3, 3)
+lst_parm$sigma_x <- runif(N, 0, 2)
+lst_parm$mu_z <- runif(N, -2, 2)
+lst_parm$sigma_z <- runif(N, 0, 1)
+```
+
+**Use 3 parameters:**  
+
+```{r}
+set.seed(123)
+n_error <- 0
+n_converge <- 0
+m_par <- matrix(nrow = N, ncol = 3)
+for(i in 1:N){
+  out <- try(suppressWarnings(maxlik(x, model = "three", parm = c(lst_parm$mu_z[i], lst_parm$sigma_z[i], lst_parm$mu_x[i], lst_parm$sigma_x[i]))), silent = T)
+  if(class(out) != "try-error"){
+    if(out$convergence == 0){
+      n_converge <- n_converge + 1
+      m_par[i,] <- out$par
+    }
+  }else{
+    n_error <- n_error + 1
+  }
+}
+colnames(m_par) <- c("mu_z", "mu_x", "sigma_x")
+m_par <- na.omit(m_par)
+
+cat("Number of failures due to inappropriate initial parameters: ", n_error, " (", round(n_error/N*100,2), "%)", sep = "")
+cat("\n")
+cat("Percent of convergence of the optim function: ", round(n_converge/(N-n_error)*100,2), "%", " (", n_converge, "/", N-n_error, ")", ", ", round(n_converge/(N)*100,2), "%", " (", n_converge, "/", N, ")", sep = "")
+cat("\n")
+cat("Only coverged results are used for calculating MSEs.")
+cat("\n")
+
+cat("MSE of mu_z: ", mean((m_par[,"mu_z"] - mu_z)^2))
+cat("\n")
+cat("MSE of mu_x: ", mean((m_par[,"mu_x"] - mu_x)^2))
+cat("\n")
+cat("MSE of sigma_x: ", mean((m_par[,"sigma_x"] - sigma_x)^2))
+cat("\n")
+```
+
+**Use 4 parameters:**  
+
+```{r}
+set.seed(123)
+n_error <- 0
+n_converge <- 0
+m_par <- matrix(nrow = N, ncol = 4)
+for(i in 1:N){
+  out <- try(suppressWarnings(maxlik(x, model = "four", parm = c(lst_parm$mu_z[i], lst_parm$sigma_z[i], lst_parm$mu_x[i], lst_parm$sigma_x[i]))), silent = T)
+  if(class(out) != "try-error"){
+    if(out$convergence == 0){
+      n_converge <- n_converge + 1
+      m_par[i,] <- out$par
+    }
+  }else{
+    n_error <- n_error + 1
+  }
+}
+colnames(m_par) <- c("mu_z", "sigma_z", "mu_x", "sigma_x")
+m_par <- na.omit(m_par)
+
+cat("Number of failures due to inappropriate initial parameters: ", n_error, " (", round(n_error/N*100,2), "%)", sep = "")
+cat("\n")
+cat("Percent of convergence of the optim function: ", round(n_converge/(N-n_error)*100,2), "%", " (", n_converge, "/", N-n_error, ")", ", ", round(n_converge/(N)*100,2), "%", " (", n_converge, "/", N, ")", sep = "")
+cat("\n")
+cat("Only coverged results are used for calculating MSEs.")
+cat("\n")
+
+cat("MSE of mu_z: ", mean((m_par[,"mu_z"] - mu_z)^2))
+cat("\n")
+cat("MSE of sigma_z: ", mean((m_par[,"sigma_z"] - sigma_z)^2))
+cat("\n")
+cat("MSE of mu_x: ", mean((m_par[,"mu_x"] - mu_x)^2))
+cat("\n")
+cat("MSE of sigma_x: ", mean((m_par[,"sigma_z"] - sigma_x)^2))
+cat("\n")
+```
+
+For this simulation, the 3 parameters model works better than the 4 parameters model. It has higher accuracy and higher rate of convergence, and the program costs less time. But the 3 parameter method requires more appropriate choices on the initial values to avoid the failures at the initialization.  
+
+
+## Simulation 3
+ 
+
+```{r}
+n <- 1000
+mu_x <- 0.0
+sigma_x <- 1.0
+mu_z <- -1.0
+sigma_z <- 0.10
+
+set.seed(123)
+x <- rtrunc4(n, mu_z, sigma_z, mu_x, sigma_x)
+
+lst_parm <- list()
+lst_parm$mu_x <- runif(N, -3, 3)
+lst_parm$sigma_x <- runif(N, 0, 2)
+lst_parm$mu_z <- runif(N, -2, 2)
+lst_parm$sigma_z <- runif(N, 0, 1)
+```
+
+**Use 3 parameters:**  
+
+```{r}
+set.seed(123)
+n_error <- 0
+n_converge <- 0
+m_par <- matrix(nrow = N, ncol = 3)
+for(i in 1:N){
+  out <- try(suppressWarnings(maxlik(x, model = "three", parm = c(lst_parm$mu_z[i], lst_parm$sigma_z[i], lst_parm$mu_x[i], lst_parm$sigma_x[i]))), silent = T)
+  if(class(out) != "try-error"){
+    if(out$convergence == 0){
+      n_converge <- n_converge + 1
+      m_par[i,] <- out$par
+    }
+  }else{
+    n_error <- n_error + 1
+  }
+}
+colnames(m_par) <- c("mu_z", "mu_x", "sigma_x")
+m_par <- na.omit(m_par)
+
+cat("Number of failures due to inappropriate initial parameters: ", n_error, " (", round(n_error/N*100,2), "%)", sep = "")
+cat("\n")
+cat("Percent of convergence of the optim function: ", round(n_converge/(N-n_error)*100,2), "%", " (", n_converge, "/", N-n_error, ")", ", ", round(n_converge/(N)*100,2), "%", " (", n_converge, "/", N, ")", sep = "")
+cat("\n")
+cat("Only coverged results are used for calculating MSEs.")
+cat("\n")
+
+cat("MSE of mu_z: ", mean((m_par[,"mu_z"] - mu_z)^2))
+cat("\n")
+cat("MSE of mu_x: ", mean((m_par[,"mu_x"] - mu_x)^2))
+cat("\n")
+cat("MSE of sigma_x: ", mean((m_par[,"sigma_x"] - sigma_x)^2))
+cat("\n")
+```
+
+**Use 4 parameters:**  
+
+```{r}
+set.seed(123)
+n_error <- 0
+n_converge <- 0
+m_par <- matrix(nrow = N, ncol = 4)
+for(i in 1:N){
+  out <- try(suppressWarnings(maxlik(x, model = "four", parm = c(lst_parm$mu_z[i], lst_parm$sigma_z[i], lst_parm$mu_x[i], lst_parm$sigma_x[i]))), silent = T)
+  if(class(out) != "try-error"){
+    if(out$convergence == 0){
+      n_converge <- n_converge + 1
+      m_par[i,] <- out$par
+    }
+  }else{
+    n_error <- n_error + 1
+  }
+}
+colnames(m_par) <- c("mu_z", "sigma_z", "mu_x", "sigma_x")
+m_par <- na.omit(m_par)
+
+cat("Number of failures due to inappropriate initial parameters: ", n_error, " (", round(n_error/N*100,2), "%)", sep = "")
+cat("\n")
+cat("Percent of convergence of the optim function: ", round(n_converge/(N-n_error)*100,2), "%", " (", n_converge, "/", N-n_error, ")", ", ", round(n_converge/(N)*100,2), "%", " (", n_converge, "/", N, ")", sep = "")
+cat("\n")
+cat("Only coverged results are used for calculating MSEs.")
+cat("\n")
+
+cat("MSE of mu_z: ", mean((m_par[,"mu_z"] - mu_z)^2))
+cat("\n")
+cat("MSE of sigma_z: ", mean((m_par[,"sigma_z"] - sigma_z)^2))
+cat("\n")
+cat("MSE of mu_x: ", mean((m_par[,"mu_x"] - mu_x)^2))
+cat("\n")
+cat("MSE of sigma_x: ", mean((m_par[,"sigma_z"] - sigma_x)^2))
+cat("\n")
+```
+
+For this simulation, the 3 parameters model works better than the 4 parameters model. It has higher accuracy and higher rate of convergence, and the program costs less time. But the 3 parameter method requires more appropriate choices on the initial values to avoid the failures at the initialization.  
+The errors of 4 parameters model get smaller when `n` is bigger.  
+
+## Simulation 4
+ 
+
+```{r}
+n <- 1000
+mu_x <- 0.0
+sigma_x <- 1.0
+mu_z <- -1.0
+sigma_z <- 0.25
+
+set.seed(123)
+x <- rtrunc4(n, mu_z, sigma_z, mu_x, sigma_x)
+
+lst_parm <- list()
+lst_parm$mu_x <- runif(N, -3, 3)
+lst_parm$sigma_x <- runif(N, 0, 2)
+lst_parm$mu_z <- runif(N, -2, 2)
+lst_parm$sigma_z <- runif(N, 0, 1)
+```
+
+**Use 3 parameters:**  
+
+```{r}
+set.seed(123)
+n_error <- 0
+n_converge <- 0
+m_par <- matrix(nrow = N, ncol = 3)
+for(i in 1:N){
+  out <- try(suppressWarnings(maxlik(x, model = "three", parm = c(lst_parm$mu_z[i], lst_parm$sigma_z[i], lst_parm$mu_x[i], lst_parm$sigma_x[i]))), silent = T)
+  if(class(out) != "try-error"){
+    if(out$convergence == 0){
+      n_converge <- n_converge + 1
+      m_par[i,] <- out$par
+    }
+  }else{
+    n_error <- n_error + 1
+  }
+}
+colnames(m_par) <- c("mu_z", "mu_x", "sigma_x")
+m_par <- na.omit(m_par)
+
+cat("Number of failures due to inappropriate initial parameters: ", n_error, " (", round(n_error/N*100,2), "%)", sep = "")
+cat("\n")
+cat("Percent of convergence of the optim function: ", round(n_converge/(N-n_error)*100,2), "%", " (", n_converge, "/", N-n_error, ")", ", ", round(n_converge/(N)*100,2), "%", " (", n_converge, "/", N, ")", sep = "")
+cat("\n")
+cat("Only coverged results are used for calculating MSEs.")
+cat("\n")
+
+cat("MSE of mu_z: ", mean((m_par[,"mu_z"] - mu_z)^2))
+cat("\n")
+cat("MSE of mu_x: ", mean((m_par[,"mu_x"] - mu_x)^2))
+cat("\n")
+cat("MSE of sigma_x: ", mean((m_par[,"sigma_x"] - sigma_x)^2))
+cat("\n")
+```
+
+**Use 4 parameters:**  
+
+```{r}
+set.seed(123)
+n_error <- 0
+n_converge <- 0
+m_par <- matrix(nrow = N, ncol = 4)
+for(i in 1:N){
+  out <- try(suppressWarnings(maxlik(x, model = "four", parm = c(lst_parm$mu_z[i], lst_parm$sigma_z[i], lst_parm$mu_x[i], lst_parm$sigma_x[i]))), silent = T)
+  if(class(out) != "try-error"){
+    if(out$convergence == 0){
+      n_converge <- n_converge + 1
+      m_par[i,] <- out$par
+    }
+  }else{
+    n_error <- n_error + 1
+  }
+}
+colnames(m_par) <- c("mu_z", "sigma_z", "mu_x", "sigma_x")
+m_par <- na.omit(m_par)
+
+cat("Number of failures due to inappropriate initial parameters: ", n_error, " (", round(n_error/N*100,2), "%)", sep = "")
+cat("\n")
+cat("Percent of convergence of the optim function: ", round(n_converge/(N-n_error)*100,2), "%", " (", n_converge, "/", N-n_error, ")", ", ", round(n_converge/(N)*100,2), "%", " (", n_converge, "/", N, ")", sep = "")
+cat("\n")
+cat("Only coverged results are used for calculating MSEs.")
+cat("\n")
+
+cat("MSE of mu_z: ", mean((m_par[,"mu_z"] - mu_z)^2))
+cat("\n")
+cat("MSE of sigma_z: ", mean((m_par[,"sigma_z"] - sigma_z)^2))
+cat("\n")
+cat("MSE of mu_x: ", mean((m_par[,"mu_x"] - mu_x)^2))
+cat("\n")
+cat("MSE of sigma_x: ", mean((m_par[,"sigma_z"] - sigma_x)^2))
+cat("\n")
+```
+
+
+For this simulation, the 3 parameters model works better than the 4 parameters model. It has higher accuracy and higher rate of convergence, and the program costs less time. But the 3 parameter method requires more appropriate choices on the initial values to avoid the failures at the initialization.  
+
+Although it is expected that if the true `sigma_z` gets bigger, the model with 4 parameters may have better accuracy than the 3 parameter model. According to the results saved in `m_par`, there is higher chance that the 4 parameter model converges to values that are far more different from the true value.  
+

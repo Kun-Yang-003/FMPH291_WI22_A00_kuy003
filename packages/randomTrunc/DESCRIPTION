@@ -1,0 +1,9 @@
+Package: randomTrunc
+Type: Package
+Title: Truncated Normal Distribution 
+Version: 1.1
+Date: 2022-03-15
+Author: Kun Yang & Alexander Zhu 
+Maintainer: Kun Yang & Alexander Zhu <kuy003@ucsd.edu>, <ajzhu@ucsd.edu>
+Description: Generating the density and random generation for the truncated normal distribution. 
+License: GPL ( >= 2.0)

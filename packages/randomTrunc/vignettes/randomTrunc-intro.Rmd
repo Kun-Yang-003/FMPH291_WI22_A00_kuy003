@@ -1,0 +1,48 @@
+---
+title: "Truncated Distribution"
+author: "Kun Yang & Alexander ZHU"
+date: "3/15/2022"
+output:
+  rmarkdown::pdf_document
+vignette: >
+  %\VignetteIndexEntry{Truncated Distribution}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\usepackage[utf8]{inputenc}
+---
+
+```{r echo=FALSE}
+library(randomTrunc)
+```
+
+# Introduction
+
+The `randomTrunc` package will estimate the mean and standard deviation of the untruncated distribution given the values that are less than that truncation point are not observed nor is their number known. 
+
+# density function for unknown truncation point, mean and standard deviation of untruncated distribution
+
+Here is an example of a plot of data generated according to that regime when truncation point is 1.5,the data mean is 2.0, and standard deviation is 1.0.
+
+```{r}
+hist( rtrunc4( 10000, 1.5, 1e-6, 2.0, 1.0), breaks = 100, freq = FALSE )
+curve( dtrunc3( x, 1.5, 2.0, 1.0), 1.49, 5, add = TRUE, col = "red", n = 201)
+```
+
+# density function for unknown truncated value which follows a Normal distribution, the mean and standard deviation of untruncated distribution are unknown as well. 
+
+Here is an example of a plot of data generated according to that regime when the mean value of truncated point is 1.5, the standard deviation of truncated point is 0.1, the mean of data is 2.0 and the standard deviation is 1.0
+```{r}
+hist( rtrunc4( 10000, 1.5, 0.1, 2.0, 1.0), breaks = 100, freq = FALSE )
+curve( dtrunc4( x, 1.5, 0.1, 2.0, 1.0), 0, 5, add = TRUE, col = "red")
+```
+# Acknowledgement
+
+This document depended on the packages
+
+* Rcpp [@Rcpp-article, @Rcpp-book, @Rcpp-brief]
+* markdown [@R-markdown]
+* knitr [@R-knitr]
+
+and the R environment [@R-man] to get it done.
+
+
+# References
